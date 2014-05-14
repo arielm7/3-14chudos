@@ -1,0 +1,98 @@
+##Proyecto 2 Tobias Chavarria Ariel Mata
+##PyFut
+
+import pygame
+
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self,image):
+        self.image= image
+        self.rect=self.image.get_rect()
+        self.rect.top,self.rect.left= (100,200)
+    def move(self,vx,vy):
+        self.rect.move_ip(vx,vy)
+    def update(self,surface):
+        surface.blit(self.image,self.rect)
+
+class mouse(pygame.Rect):                           ##Clase que genera un rectangulo en la pocision del mouse
+        def _init_(self):
+            pygameRect._init_(self,0,0,1,1)
+        def update(self):
+            self.left,self.top=pygame.mouse.get_pos()
+
+class Boton(pygame.sprite.Sprite):
+    def __init__(self,imagen1,x=200,y=200):
+        self.imagen_select=imagen1
+        self.rect=self.imagen_select.get_rect()
+        self.rect.left,self.rect.top=(x,y)
+        
+    def update(self,pantalla,cursor):
+        if cursor.colliderect(self.rect):
+            self.imagen_actual=self.imagen_select
+            pantalla.blit(self.imagen_actual,self.rect)
+        else:
+            pass
+        
+        
+
+
+            
+
+def rect (cord):                                                        ##Funcion que crea rectangulos para poder manejar los botones por colisiones
+    rect=pygame.Rect(cord)
+    return (rect)
+
+rectTouch1= rect((145,112,220,40))
+rectTouch2= rect((145,181,220,40))
+rectTouch3= rect((145,251,220,40))
+        
+        
+
+def main():
+    pygame.init()
+    pantalla=pygame.display.set_mode((900,500))
+    reloj1=pygame.time.Clock()
+    fondoMenu=pygame.image.load("fmessi.png")
+    compe=pygame.image.load("competicion.png")
+    football= pygame.image.load("football.png")
+    training= pygame.image.load("training.png")
+    mouse1=mouse(0,0,0,0)
+    boton1=Boton(compe,145,112)
+    boton2=Boton(football,145,181)
+    boton3=Boton(football,145,251)
+    
+    #image1= pygame.image.load()
+    #player1= Player(image1)
+    salir=False
+
+    while salir!=True:
+        
+        for event in pygame.event.get():
+            if event.type==pygame.QUIT:
+                salir=True
+
+            
+
+        
+            
+        mouse1.update()        
+        pantalla.blit(fondoMenu,(0,0))
+        boton1.update(pantalla,mouse1)
+        boton3.update(pantalla,mouse1)
+        boton2.update(pantalla,mouse1)
+        reloj1.tick(30)
+        pygame.display.update()
+        
+
+
+
+
+
+
+
+
+
+
+    pygame.quit()
+
+main()
