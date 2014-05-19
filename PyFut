@@ -2,23 +2,71 @@
 ##PyFut
 
 import pygame
-
+import random
 
 class Player(pygame.sprite.Sprite):
     def __init__(self,image):
         self.image= image
         self.rect=self.image.get_rect()
-        self.rect.top,self.rect.left= (100,200)
-    def move(self,vx,vy):
-        self.rect.move_ip(vx,vy)
-    def update(self,surface):
+        self.rect.top,self.rect.left= (180,790)
+    def move(self,velx,vely):
+        if self.rect.top<=0 :
+            vely=1
+        if  self.rect.top>=372:
+            vely=-1
+        if self.rect.left<=8:
+            velx=1
+        if self.rect.left>=970:
+            velx=-1
+        self.rect.move_ip(velx,vely)
+    def update(self,surface):    
         surface.blit(self.image,self.rect)
+    def rectT(self):
+        return self.rect.top
+    def rectL(self):
+        return self.rect.left
+class Botella(pygame.sprite.Sprite):
+    def __init__(self,imagen):
+        self.imagen=imagen
+        self.rect=self.imagen.get_rect()
+        relojB=pygame.time.Clock()
+        x=random.randrange(8,970)
+        y=random.randrange(0,372)
+        self.rect.top,self.rect.left=(y,x)
+    def update(self,surface):
+        surface.blit(self.imagen,self.rect)
+    def rectT(self):
+        return self.rect.top
+    def rectL(self):
+        return self.rect.left
+##class Balon(pygame.sprite.Sprite):
+##    def __init__(self,imagen):
+##        self.imagen=imagen
+##        self.rect=self.imagen.get_rect()
+##        self.rect.top,self.rect.left=(200,500)
+##    def move(self,velbx,velby):
+##        if self.rect.top<=0 :
+##            velby=1
+##        if  self.rect.top>=372:
+##            velby=-1
+##        if self.rect.left<=8:
+##            velbx=1
+##        if self.rect.left>=970:
+##            velbx=-1
+##        self.rect.move_ip(velbx,velby)
+##    def update(self,surface):
+##        surface.blit(self.imagen,self.rect)
+##    def rectT(self):
+##        return self.rect.top
+##    def rectL(self):
+##        return self.rect.left
 
 class mouse(pygame.Rect):                           ##Clase que genera un rectangulo en la pocision del mouse
         def _init_(self):
             pygameRect._init_(self,0,0,1,1)
         def update(self):
             self.left,self.top=pygame.mouse.get_pos()
+            
 
 class Boton(pygame.sprite.Sprite):
     def __init__(self,imagen1,x=200,y=200):
@@ -37,10 +85,12 @@ class Boton(pygame.sprite.Sprite):
 join= pygame.image.load("join1.png")
 new= pygame.image.load("new1.png")
 change= pygame.image.load("change1.png")
+sign= pygame.image.load("sign.png")
 
 boton4=Boton(new,529,317)
 boton5=Boton(change,48,162)
 boton6=Boton(join,618,180)
+botonSign=Boton(sign,584,183)
 
 class Window():
     def __init__(self,imagen,boton,x=0,y=0):
@@ -78,6 +128,7 @@ rectTouch3= rect((145,251,220,40))
 rectTouch6= rect((618,180,200,40))
 rectTouch4= rect((529,317,220,40))
 rectTouch6= rect((145,251,220,40))
+rectSign=  rect((584,183,225,59))
 
 
 
@@ -123,18 +174,18 @@ class Input:
 
    
    
-    def resultado(self, window, mensaje2):
+    def resultado(self, window, mensaje2,text=""):
       variables = []
       self.Caja(window, mensaje2 + ''.join(variables))
       while True:
          tecla = self.Introducir()
          if tecla == pygame.K_BACKSPACE:##Si la persona apreta Borrar
              variables= variables[0:-1]##Se elimina el ultimo digito
-         elif tecla == pygame.K_0:
-            var=False
-            return var 
+         elif tecla == pygame.K_RETURN:
+             break 
          else:
             variables.append(chr(tecla))
+            text=text + chr(tecla)
          self.Caja(window, mensaje2 + "".join(variables))
          pygame.display.flip()
       return ''.join(variables)
@@ -153,20 +204,37 @@ def main():
     training= pygame.image.load("training.png")
     wait= pygame.image.load("wait.png")
     playsign= pygame.image.load("playsign.JPG")
-    load = pygame.image.load("load.gif")
+    #load = pygame.image.load("load.gif")
     name= pygame.image.load("name.png")
+    new= pygame.image.load("connecting.png")
+    back= pygame.image.load("back.png")
+    sign2= pygame.image.load("sign2.png")
     mouse1=mouse(0,0,0,0)
     boton1=Boton(compe,145,112)
     boton2=Boton(football,145,181)
     boton3=Boton(training,145,251)
-  
+    estadio= pygame.image.load("estadio3.png")
     #ventana1= Window(playsign,rectTouch1,0,0)
     #ventana2= Window(wait,rectTouch1,0,0)
     ventana3= Window(name,rectTouch1,0,0)
+    ventana4=Window(estadio,rectTouch3,0,0)
+    imessi=pygame.image.load("jugmessi1.png")
+    messi= Player(imessi)
+    #ibola=pygame.image.load("bola1.png")
+    #bola=Balon(ibola)
+    ibotella=pygame.image.load("Botella1.png")
+    velx=0
+    vely=0
+    vel=5
+    velb=7
+    velbx=0
+    velby=0
     pant=True
     pant2=False
+    pantA=False
     pantallaMenu=False
     pantallaWait=False
+    pantallaNew=False
 
 
 
@@ -179,6 +247,7 @@ def main():
     #image1= pygame.image.load()
     #player1= Player(image1)
     salir=False
+    vars=True
 
     while salir!=True:
         
@@ -194,12 +263,62 @@ def main():
         
         mouse1.update()
 
+        if ventana4.update(pantalla,mouse1) and event.type==pygame.MOUSEBUTTONDOWN or pantA==True:
+           pantA=True
+           pant=False
+           pantalla2=pygame.display.set_mode((1000,400))
+           pantalla2.blit(estadio,(0,0))
+           botella=Botella(ibotella)
+           botella.update(pantalla2)
+           while pantA==True:
+            mouse1.update()
+            rectBotella=rect((botella.rectT(),botella.rectL(),25,25))
+            rectJug=rect((messi.rectT(),messi.rectL(),22,22))
+            #rectBola=rect((bola.rectT(),bola.rectL(),15,15))
+            for event in pygame.event.get():
+             if event.type==pygame.QUIT:
+                 pantA=False
+                 salir=True
+             if rectJug.colliderect(rectBotella):
+              botella=Botella(ibotella)
+              botella.update(pantalla2)
+             #if rectBola.colliderect(rectJug)==False:
+                 #velbx=0
+             if event.type==pygame.KEYDOWN:  
+                 #if rectBola.colliderect(rectJug) and event.key==pygame.K_LEFT:
+                      #velbx=-velb
+                 if event.key==pygame.K_RIGHT:
+                     velx=vel
+                 if event.key==pygame.K_LEFT:
+                     velx=-vel
+                 if event.key==pygame.K_UP:
+                     vely=-vel
+                 if event.key==pygame.K_DOWN:
+                     vely=vel
+             if event.type==pygame.KEYUP:
+                 if event.key==pygame.K_RIGHT  :
+                    velx=0
+                 if event.key==pygame.K_LEFT:
+                    velx=0
+                 if event.key==pygame.K_UP:
+                    vely=0
+                 if event.key==pygame.K_DOWN:
+                     vely=0
+            reloj1.tick(40)
+            messi.move(velx,vely)
+            #bola.move(velbx,velby)
+            pantalla2.blit(estadio,(0,0))
+            messi.update(pantalla2)
+            #bola.update(pantalla2)
+            botella.update(pantalla2)
+            pygame.display.update()
 
         if (ventana3.update(pantalla,mouse1) and event.type==pygame.MOUSEBUTTONDOWN) or pant2==True:
             pant=False
             pant2=True
             var1=True
             pantalla.blit(name,(0,0))
+            pantalla.blit(back,(50,300))
             rectName= rect((439,78,315,46))
             pygame.display.update()     
             while pant2==True: 
@@ -209,12 +328,22 @@ def main():
                             salir=True
                         if mouse1.colliderect(rectName) and event.type== pygame.MOUSEBUTTONDOWN:
                             input_caja = Input()##llama al input para las variables
-                            while var1!=False:
+                            while vars!=False:
+                                pantalla.blit(name,(0,0))
+                                pantalla.blit(back,(50,300)) 
                                 reloj1.tick(40)
-                                var1 =int(input_caja.resultado(pantalla, ""))
-                        if event.type==pygame.KEYDOWN and event.key== pygame.K_SPACE:
+                                var1 =input_caja.resultado(pantalla, "")
+                                print(var1)
+                                vars=False
+                        pantalla.blit(sign2,(rectSign.left,rectSign.top))      
+                        botonSign.update(pantalla,mouse1)       
+                        if event.type==pygame.MOUSEBUTTONDOWN and mouse1.colliderect(rectSign):
                             pantallaMenu=True
-                            pant2=False  
+                            pant2=False 
+                            print(var1)
+                        
+                           
+                         
                     mouse1.update()
                     reloj1.tick(40)
                     pygame.display.update()
@@ -229,6 +358,10 @@ def main():
             
         if pantallaWait==True:
             pantalla.blit(wait,(0,0))
+        
+        if pantallaNew==True:
+            pantalla.blit(new,(0,0))
+            
             
        
         if pantallaMenu==True:
@@ -240,7 +373,11 @@ def main():
                 pant2=True
             if boton6.update(pantalla, mouse1) and event.type==pygame.MOUSEBUTTONDOWN:
                 pantallaWait=True
-                pantallaMenu=False   
+                pantallaMenu=False
+            if boton4.update(pantalla, mouse1) and event.type==pygame.MOUSEBUTTONDOWN:
+                pantallaNew=True
+                pantallaMenu=False
+             
 
         if pant!= False:
             pantalla.blit(fondoMenu,(0,0))
